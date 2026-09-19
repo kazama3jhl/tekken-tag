@@ -19,6 +19,23 @@ jobs:
           repository: anomixer/MameWasm
           path: mamewasm
 
+      - name: Patch MAME WASM build for current Ninja
+        shell: pwsh
+        working-directory: mamewasm
+        run: |
+          $p = "build.ps1"
+          $c = Get-Content $p -Raw
+          $old = '$content = $content.Replace(''$(EMSCRIPTEN)'', "$PSScriptRoot\emsdk\upstream\emscripten")'
+          $new = @'
+                $content = $content.Replace(''$(EMSCRIPTEN)'', "$PSScriptRoot\emsdk\upstream\emscripten")
+                # Current Ninja rejects shell-style $(VAR) syntax; resolve EMSDK too.
+                $content = $content.Replace(''$(EMSDK)'', "$PSScriptRoot\emsdk")
+'@
+          if (!$c.Contains($old)) { throw "Expected MAME WASM patch point not found." }
+          $c = $c.Replace($old, $new.TrimEnd())
+          Set-Content -Path $p -Value $c -Encoding utf8
+          Write-Host "[+] Patched build.ps1 for Ninja $-escape compatibility."
+
       - name: Setup MAME WASM build environment
         shell: pwsh
         working-directory: mamewasm
