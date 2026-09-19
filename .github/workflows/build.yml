@@ -24,6 +24,21 @@ jobs:
         working-directory: mamewasm
         run: ./setup.ps1 -SkipValidation
 
+      - name: Patch MAME WASM build script
+        shell: pwsh
+        working-directory: mamewasm
+        run: |
+          $path = Join-Path $PWD "build.ps1"
+          $content = Get-Content -Raw -LiteralPath $path
+          $old = '$content = $content.Replace(''$(EMSCRIPTEN)'', "$PSScriptRoot\emsdk\upstream\emscripten")'
+          $new = @'
+          $content = $content.Replace(''$(EMSCRIPTEN)'', "$PSScriptRoot\emsdk\upstream\emscripten")
+          $content = $content.Replace(''$(EMSDK)'', "$PSScriptRoot\emsdk")
+          '@.Trim()
+          if (!$content.Contains($old)) { throw "Expected EMSCRIPTEN replacement was not found in upstream build.ps1" }
+          $content = $content.Replace($old, $new)
+          Set-Content -LiteralPath $path -Value $content -Encoding utf8
+
       - name: Build minimal MAME with Tekken Tag driver
         shell: pwsh
         working-directory: mamewasm
