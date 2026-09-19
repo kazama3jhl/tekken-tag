@@ -32,8 +32,8 @@ jobs:
           $content = Get-Content -Raw -LiteralPath $path
           $old = '$content = $content.Replace(''$(EMSCRIPTEN)'', "$PSScriptRoot\emsdk\upstream\emscripten")'
           $new = @'
-          $content = $content.Replace(''$(EMSCRIPTEN)'', "$PSScriptRoot\emsdk\upstream\emscripten")
-          $content = $content.Replace(''$(EMSDK)'', "$PSScriptRoot\emsdk")
+          $content = $content.Replace('$(EMSCRIPTEN)', "$PSScriptRoot\emsdk\upstream\emscripten")
+          $content = $content.Replace('$(EMSDK)', "$PSScriptRoot\emsdk")
           '@.Trim()
           if (!$content.Contains($old)) { throw "Expected EMSCRIPTEN replacement was not found in upstream build.ps1" }
           $content = $content.Replace($old, $new)
