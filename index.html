@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>Tekken Tag Tournament</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="arcade">
+  <h1>Tekken Tag Tournament</h1>
+  <div id="status">در حال آماده‌سازی...</div>
+  <canvas id="canvas" tabindex="-1"></canvas>
+  <div class="top-buttons">
+    <button id="fullscreen">تمام‌صفحه</button><button id="pause">توقف</button><button id="reset">ریست</button>
+  </div>
+  <div class="mobile-controls">
+    <div class="dpad">
+      <button data-key="ArrowUp">▲</button>
+      <button data-key="ArrowLeft">◀</button>
+      <button data-key="ArrowRight">▶</button>
+      <button data-key="ArrowDown">▼</button>
+    </div>
+    <div class="system">
+      <button data-key="5">COIN</button><button data-key="1">START</button>
+    </div>
+    <div class="fight">
+      <button data-key="z">A</button><button data-key="x">B</button>
+      <button data-key="a">C</button><button data-key="s">D</button>
+    </div>
+  </div>
+  <p class="hint">کیبورد: جهت‌ها، Z/X/A/S، عدد 5 برای سکه، عدد 1 برای شروع</p>
+</div>
+<script src="js/emulator.js"></script>
+</body>
+</html>
