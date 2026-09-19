@@ -1,0 +1,52 @@
+name: Build Tekken Tag WebAssembly
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: windows-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
+      - name: Checkout MAME WASM factory
+        uses: actions/checkout@v4
+        with:
+          repository: anomixer/MameWasm
+          path: mamewasm
+
+      - name: Setup MAME WASM build environment
+        shell: pwsh
+        working-directory: mamewasm
+        run: ./setup.ps1 -SkipValidation
+
+      - name: Build minimal MAME with Tekken Tag driver
+        shell: pwsh
+        working-directory: mamewasm
+        run: ./build.ps1 -Target mame -Subtarget tiny -Sources src/mame/namco/namcos12.cpp -NoDebug
+
+      - name: Package web files
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist/emulator,dist/js,dist/css,dist/roms | Out-Null
+          Copy-Item index.html dist/index.html
+          Copy-Item js/emulator.js dist/js/emulator.js
+          Copy-Item css/style.css dist/css/style.css
+          $core = Get-ChildItem mamewasm -Recurse -Filter "mametiny.js" | Select-Object -First 1
+          $wasm = Get-ChildItem mamewasm -Recurse -Filter "mametiny.wasm" | Select-Object -First 1
+          if (!$core -or !$wasm) { throw "mametiny.js/wasm not found" }
+          Copy-Item $core.FullName dist/emulator/mametiny.js
+          Copy-Item $wasm.FullName dist/emulator/mametiny.wasm
+          Set-Content dist/roms/README.txt "Place your legally obtained tekken-tag.zip ROM archive here."
+          Compress-Archive -Path dist/* -DestinationPath tekken-tag-web.zip -Force
+
+      - name: Upload playable web package
+        uses: actions/upload-artifact@v4
+        with:
+          name: tekken-tag-web
+          path: tekken-tag-web.zip
+          if-no-files-found: error
